@@ -1,24 +1,8 @@
-\# Uber Booking Dashboard - Power BI
+\# 🚗 Uber Ride Bookings — Power BI Dashboard
 
 
 
-\## Project Overview
-
-This Power BI dashboard analyzes Uber booking data to uncover insights related to:
-
-\- Ride bookings
-
-\- Cancellation trends
-
-\- Revenue analysis
-
-\- Vehicle performance
-
-\- Customer and driver behavior
-
-
-
-The dashboard helps understand operational performance and customer experience using interactive visualizations and DAX measures.
+> An end-to-end business intelligence dashboard analyzing Uber ride booking data from the NCR (National Capital Region) dataset, built as part of a Data Analyst portfolio project.
 
 
 
@@ -26,17 +10,11 @@ The dashboard helps understand operational performance and customer experience u
 
 
 
-\## Tools \& Technologies Used
+\## 📌 Project Overview
 
-\- Power BI
 
-\- DAX
 
-\- Data Visualization
-
-\- Data Cleaning
-
-\- Business Intelligence
+This Power BI project explores ride booking patterns, cancellation behaviour, and revenue trends across a large-scale Uber dataset (\~150K records, Jan–Jun 2024). The dashboard is designed to help business stakeholders quickly understand operational performance and identify areas for improvement.
 
 
 
@@ -44,57 +22,27 @@ The dashboard helps understand operational performance and customer experience u
 
 
 
-\## Dashboard Pages
+\## 📊 Dashboard Pages
 
 
 
-\### 1. Overall Analysis
+\### 1. Overall Page
 
-\- Total bookings
-
-\- Successful rides
-
-\- Cancellation rate
-
-\- Ride trends over time
+A high-level summary of all ride activity across the selected date range.
 
 
 
-\### 2. Vehicle Type Analysis
+| Visual | Description |
 
-\- Booking distribution by vehicle type
+|--------|-------------|
 
-\- Vehicle-wise cancellation trends
+| Date Range Slicer | Filter all visuals by booking date (Jan 2024 – Jun 2024) |
 
-\- Ride performance comparison
+| Total Booking (KPI Card) | Total number of bookings — 68K |
 
+| Booking Status Breakdown | Pie chart showing Completed, Cancelled by Driver, Cancelled by Customer, No Driver Found, Incomplete |
 
-
-\### 3. Revenue Analysis
-
-\- Total revenue
-
-\- Revenue trends
-
-\- Average booking value
-
-
-
-\### 4. Cancellation Analysis
-
-\- Customer cancellation reasons
-
-\- Driver cancellation reasons
-
-\- Cancellation rate by vehicle type
-
-
-
-\### 5. Ratings Analysis
-
-\- Customer ratings insights
-
-\- Driver ratings analysis
+| Ride Volume Over Time | Area chart showing monthly ride trend (Jan–Jun 2024) |
 
 
 
@@ -102,49 +50,45 @@ The dashboard helps understand operational performance and customer experience u
 
 
 
-\## Key Insights
-
-\- Majority of rides were successfully completed.
-
-\- Certain vehicle categories showed higher cancellation rates.
-
-\- Peak ride demand was observed during specific periods.
-
-\- Driver and customer cancellations had different behavioral patterns.
+\## 🗂️ Dataset Details
 
 
 
-\---
+| Attribute | Details |
+
+|-----------|---------|
+
+| Source | Uber NCR (National Capital Region) ride dataset |
+
+| Records | \~150,000 rows |
+
+| Date Range | January 2024 – June 2024 |
+
+| Format | CSV / Excel (imported into Power BI) |
 
 
 
-\## Dashboard Screenshots
+\### Key Columns Used
 
 
 
-\### Overall Dashboard
+\- `Booking ID` — Unique ride identifier
 
-!\[Overall Dashboard](Screenshots/overall-dashboard.png)
+\- `Date` / `Time` — Ride timestamp
 
+\- `Booking Status` — Completed / Cancelled by Driver / Cancelled by Customer / No Driver Found / Incomplete
 
+\- `Vehicle Type` — Sedan, SUV, Auto, Bike, etc.
 
-\### Cancellation Dashboard
+\- `Pickup Area` / `Drop Area` — Location information
 
-!\[Cancellation Dashboard](Screenshots/cancellation-dashboard.png)
+\- `Fare Amount` — Ride fare in INR
 
+\- `Trip Distance (km)` — Distance covered
 
+\- `Driver Rating` — Customer rating given to driver
 
-\---
-
-
-
-\## Project Files
-
-\- `uber\_booking.pbix` → Power BI Dashboard File
-
-\- `Screenshots/` → Dashboard Images
-
-\- `README.md` → Project Documentation
+\- `Payment Method` — Cash / UPI / Card
 
 
 
@@ -152,11 +96,205 @@ The dashboard helps understand operational performance and customer experience u
 
 
 
-\## Author
-
-Shraddha Pawar
+\## 🧮 DAX Measures
 
 
 
-GitHub: https://github.com/Shraddha98776
+```dax
+
+\-- Total Bookings
+
+Total Booking = COUNTROWS('UberData')
+
+
+
+\-- Completed Rides
+
+Completed Rides =
+
+&#x20;   COUNTROWS(FILTER('UberData', 'UberData'\[Booking Status] = "Completed"))
+
+
+
+\-- Completion Rate
+
+Completion Rate =
+
+&#x20;   DIVIDE(\[Completed Rides], \[Total Booking], 0)
+
+
+
+\-- Cancellation Rate
+
+Cancellation Rate =
+
+&#x20;   DIVIDE(
+
+&#x20;       COUNTROWS(FILTER('UberData',
+
+&#x20;           'UberData'\[Booking Status] IN {"Cancelled by Driver", "Cancelled by Customer"}
+
+&#x20;       )),
+
+&#x20;       \[Total Booking], 0
+
+&#x20;   )
+
+
+
+\-- Total Revenue (Completed rides only)
+
+Total Revenue =
+
+&#x20;   SUMX(FILTER('UberData', 'UberData'\[Booking Status] = "Completed"),
+
+&#x20;   'UberData'\[Fare Amount])
+
+
+
+\-- Average Fare per Ride
+
+Avg Fare per Ride =
+
+&#x20;   AVERAGEX(FILTER('UberData', 'UberData'\[Booking Status] = "Completed"),
+
+&#x20;   'UberData'\[Fare Amount])
+
+
+
+\-- Average Driver Rating
+
+Avg Driver Rating = AVERAGE('UberData'\[Driver Rating])
+
+
+
+\-- Month-over-Month Growth %
+
+MoM Growth % =
+
+&#x20;   VAR CurrentMonth = \[Total Booking]
+
+&#x20;   VAR PrevMonth = CALCULATE(\[Total Booking], DATEADD('Date'\[Date], -1, MONTH))
+
+&#x20;   RETURN DIVIDE(CurrentMonth - PrevMonth, PrevMonth, 0)
+
+```
+
+
+
+\---
+
+
+
+
+
+\## 📈 Key Insights
+
+
+
+\- \*\*62.09%\*\* of all bookings were successfully completed
+
+\- \*\*18.07%\*\* were cancelled by drivers — the largest cancellation category
+
+\- Ride volume remained consistently above 10K/month from January to May, then dropped sharply in June (partial month data)
+
+\- Cancellations by customers (\~6.95%) and drivers (\~18.07%) together represent \~25% of total bookings — a key area for operational improvement
+
+\- Peak demand hours are expected around morning (8–10 AM) and evening (5–8 PM) rush hours
+
+\- NCR hotspot pickup areas drive majority of ride volume
+
+
+
+\---
+
+
+
+
+
+\## 🛠️ Tools \& Technologies
+
+
+
+| Tool | Purpose |
+
+|------|---------|
+
+| Power BI Desktop | Dashboard development |
+
+| DAX | Calculated measures and KPIs |
+
+| Power Query (M) | Data cleaning and transformation |
+
+| Excel / CSV | Raw data source |
+
+
+
+\---
+
+
+
+\## 📁 Project Structure
+
+
+
+```
+
+uber-powerbi-dashboard/
+
+│
+
+├── uber\_booking.pbix           # Main Power BI file
+
+├── data/
+
+│   └── uber\_ncr\_data.csv       # Raw dataset
+
+├── screenshots/
+
+│   └── overall\_page.png        # Dashboard screenshot
+
+└── README.md                   # Project documentation
+
+```
+
+
+
+\---
+
+
+
+
+
+\## ⚠️ Challenges Faced
+
+
+
+\- \*\*Large dataset handling\*\* — Managing \~150K rows in Power BI required optimizing DAX measures to avoid slow report rendering
+
+\- \*\*Date slicer configuration\*\* — Setting up a numeric range slider for dates needed custom formatting in Power Query
+
+
+
+\---
+
+
+
+\## 🔮 Future Scope
+
+
+
+\- \*\*Add more dashboard pages\*\* — Driver Performance page, Revenue Analysis page, Location Heatmap page
+
+\- \*\*Geographic map visual\*\* — Plot pickup/drop areas on a Bing Maps visual for spatial insight
+
+\- \*\*Predictive analytics\*\* — Integrate Python/R visuals in Power BI to forecast future ride demand
+
+\- \*\*Real-time data\*\* — Connect to a live API or streaming dataset for real-time ride monitoring
+
+
+
+\---
+
+
 
